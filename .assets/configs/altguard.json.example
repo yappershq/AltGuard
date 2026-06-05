@@ -2,10 +2,10 @@
   "enabled": true,
 
   // notify | ban_same | ban_fixed
-  //   notify    = only message online admins + log (safe; never bans) — recommended first
-  //   ban_same  = ban the alt for the matched ban's remaining duration (permanent stays permanent)
+  //   ban_same  = ban the alt for the matched ban's remaining duration (permanent stays permanent) — default
   //   ban_fixed = ban the alt for banDurationMinutes (0 = permanent)
-  "action": "notify",
+  //   notify    = only message online admins + log (never bans) — use to validate first
+  "action": "ban_same",
 
   // how many distinct BANNED accounts must share the IP before acting
   "threshold": 1,

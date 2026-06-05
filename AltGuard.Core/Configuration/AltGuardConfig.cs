@@ -80,8 +80,8 @@ public sealed class AltGuardConfig
     /// <summary>Master switch. When false the connect listener does nothing.</summary>
     [JsonPropertyName("enabled")] public bool Enabled { get; set; } = true;
 
-    /// <summary>notify | ban_same | ban_fixed. Defaults to notify so a bad rollout can't mass-ban.</summary>
-    [JsonPropertyName("action")] public string ActionRaw { get; set; } = "notify";
+    /// <summary>notify | ban_same | ban_fixed. Defaults to ban_same (ban the alt for the matched ban's remaining time).</summary>
+    [JsonPropertyName("action")] public string ActionRaw { get; set; } = "ban_same";
 
     /// <summary>Number of distinct BANNED accounts sharing the IP required before acting.</summary>
     [JsonPropertyName("threshold")] public int Threshold { get; set; } = 1;
