@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>AltGuard</AssemblyName>
+    <RootNamespace>AltGuard</RootNamespace>
+  </PropertyGroup>
+
+  <!-- Self-contained DB access to the analytics pa_connections table (we don't hard-depend on
+       PlayerAnalytics' runtime interface — decoupled, survives load order). -->
+  <ItemGroup>
+    <PackageReference Include="SqlSugarCoreNoDrive" Version="5.1.4.211" />
+    <PackageReference Include="MySqlConnector" Version="2.*" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,35 @@
+{
+  "enabled": true,
+
+  // notify | ban_same | ban_fixed
+  //   notify    = only message online admins + log (safe; never bans) — recommended first
+  //   ban_same  = ban the alt for the matched ban's remaining duration (permanent stays permanent)
+  //   ban_fixed = ban the alt for banDurationMinutes (0 = permanent)
+  "action": "notify",
+
+  // how many distinct BANNED accounts must share the IP before acting
+  "threshold": 1,
+
+  "banDurationMinutes": 0,
+
+  // skip registered admins (don't ban staff who share a household/CGNAT IP)
+  "adminBypass": true,
+
+  // SteamID64s exempt from detection entirely
+  "whitelist": [],
+
+  // skip re-checking an IP seen clean within this many seconds
+  "ipCacheSeconds": 300,
+
+  "banReason": "Ban evasion (alt of a banned account)",
+
+  // points at the PlayerAnalytics database (where pa_connections lives)
+  "database": {
+    "type": "mysql",
+    "host": "10.1.1.180",
+    "port": 3306,
+    "database": "player_analytics",
+    "user": "YOUR_DB_USER",
+    "password": "YOUR_PASSWORD_HERE"
+  }
+}
