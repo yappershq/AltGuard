@@ -28,10 +28,15 @@ Nothing blocks the game thread; only the final action runs on it.
 
 ## Config (`sharp/configs/altguard.json`)
 
-See [`.assets/configs/altguard.json.example`](.assets/configs/altguard.json.example). Point
-`database` at the PlayerAnalytics DB. **Start with `"action": "notify"`** to validate detection
-before enabling bans — shared IPs (households, CGNAT) can produce false positives, mitigated by
-`threshold`, `adminBypass`, and the SteamID `whitelist`.
+See [`.assets/configs/altguard.json.example`](.assets/configs/altguard.json.example).
+
+**No DB credentials of its own** — AltGuard reads the analytics DB connection straight from an
+existing server config (`analyticsDatabaseConfig`, default `playeranalytics.database.jsonc`). Bans
+go through the AdminCommands interface, which needs no DB config here either.
+
+**Start with `"action": "notify"`** to validate detection before enabling bans — shared IPs
+(households, CGNAT) can produce false positives, mitigated by `threshold`, `adminBypass`, and the
+SteamID `whitelist`.
 
 ## Caveats
 

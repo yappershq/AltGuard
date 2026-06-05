@@ -23,13 +23,8 @@
 
   "banReason": "Ban evasion (alt of a banned account)",
 
-  // points at the PlayerAnalytics database (where pa_connections lives)
-  "database": {
-    "type": "mysql",
-    "host": "10.1.1.180",
-    "port": 3306,
-    "database": "player_analytics",
-    "user": "YOUR_DB_USER",
-    "password": "YOUR_PASSWORD_HERE"
-  }
+  // AltGuard reads the analytics DB creds straight from this existing config (in configs/),
+  // so it needs NO database credentials of its own. Bans go through the AdminCommands
+  // interface, which needs no DB config here either.
+  "analyticsDatabaseConfig": "playeranalytics.database.jsonc"
 }

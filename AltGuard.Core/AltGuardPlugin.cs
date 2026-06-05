@@ -54,8 +54,13 @@ public sealed class AltGuardPlugin : IModSharpModule
     {
         _bridge.ResolveModules();
 
-        if (_config.Enabled && _db.Connect(_config.Database))
-            _db.EnsureIpIndex();
+        if (_config.Enabled)
+        {
+            // No DB creds of our own — reuse an existing server config (PlayerAnalytics' by default).
+            var dbConfig = DatabaseConfig.LoadShared(_bridge.SharpPath, _config.AnalyticsDatabaseConfig, _logger);
+            if (dbConfig is not null && _db.Connect(dbConfig))
+                _db.EnsureIpIndex();
+        }
 
         _detection.Start();
 
