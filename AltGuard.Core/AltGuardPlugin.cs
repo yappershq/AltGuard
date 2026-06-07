@@ -28,6 +28,7 @@ public sealed class AltGuardPlugin : IModSharpModule
     private readonly AltGuardConfig           _config;
     private readonly AltGuardDatabase         _db;
     private readonly AltDetectionModule       _detection;
+    private Database.GuardBypassStore?        _bypassStore;
 
     public AltGuardPlugin(
         ISharedSystem  sharedSystem,
@@ -62,8 +63,16 @@ public sealed class AltGuardPlugin : IModSharpModule
                 _db.EnsureIpIndex();
         }
 
-        // Shared bypass list (read by both AltGuard + AntiVpnGuard).
-        _detection.Configure(Configuration.SharedBypass.Load(_bridge.SharpPath, _config.SharedBypassConfig, _logger));
+        // Shared bypass: DB-backed (fleet-wide, website-managed), JSON file as offline fallback.
+        var fileFallback = Configuration.SharedBypass.Load(_bridge.SharpPath, _config.SharedBypassConfig, _logger);
+        _bypassStore     = new Database.GuardBypassStore(fileFallback, _logger);
+        if (!string.IsNullOrWhiteSpace(_config.BypassDatabaseConfig))
+        {
+            var bypassDb = DatabaseConfig.LoadShared(_bridge.SharpPath, _config.BypassDatabaseConfig, _logger);
+            if (bypassDb is not null && _bypassStore.Connect(bypassDb))
+                _bypassStore.Start(_config.BypassRefreshSeconds);
+        }
+        _detection.Configure(_bypassStore);
 
         _detection.Start();
 
@@ -74,6 +83,7 @@ public sealed class AltGuardPlugin : IModSharpModule
     public void Shutdown()
     {
         _detection.Stop();
+        _bypassStore?.Dispose();
         _db.Dispose();
     }
 }

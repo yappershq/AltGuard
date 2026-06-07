@@ -97,9 +97,18 @@ public sealed class AltGuardConfig
 
     /// <summary>
     /// Optional shared bypass file (in configs/) read by BOTH AltGuard and AntiVpnGuard:
-    /// { "steamIds": ["7656..."] }. SteamIDs here are exempt from both plugins. Empty = disabled.
+    /// { "steamIds": ["7656..."] }. Used as an OFFLINE FALLBACK merged on top of the DB list.
     /// </summary>
     [JsonPropertyName("sharedBypassConfig")] public string SharedBypassConfig { get; set; } = "bypass_steamids.json";
+
+    /// <summary>
+    /// Config file (in configs/) holding the shared bypass DB creds as a top-level "database" block.
+    /// Hosts the fleet-wide, website-managed guard_bypass table read by both plugins. Empty = file-only.
+    /// </summary>
+    [JsonPropertyName("bypassDatabaseConfig")] public string BypassDatabaseConfig { get; set; } = "guardbypass.database.json";
+
+    /// <summary>How often (seconds) to refresh the bypass list from the DB. Default 300 (5 min).</summary>
+    [JsonPropertyName("bypassRefreshSeconds")] public int BypassRefreshSeconds { get; set; } = 300;
 
     /// <summary>Skip re-querying an IP that was already seen clean within this many seconds.</summary>
     [JsonPropertyName("ipCacheSeconds")] public int IpCacheSeconds { get; set; } = 300;
