@@ -32,10 +32,11 @@ internal sealed class AltGuardDatabase : IDisposable
                 _            => throw new NotSupportedException($"Unsupported DB type '{cfg.Type}' (mysql|postgresql)"),
             };
 
+            // Cap pool size — many plugins share the same MySQL box; default (100) exhausts max_connections.
             var conn = dbType switch
             {
-                DbType.MySql      => $"Server={cfg.Host};Port={cfg.Port};Database={cfg.Database};User={cfg.User};Password={cfg.Password};AllowPublicKeyRetrieval=true;",
-                _                 => $"Host={cfg.Host};Port={cfg.Port};Database={cfg.Database};Username={cfg.User};Password={cfg.Password};",
+                DbType.MySql      => $"Server={cfg.Host};Port={cfg.Port};Database={cfg.Database};User={cfg.User};Password={cfg.Password};AllowPublicKeyRetrieval=true;Maximum Pool Size=4;Minimum Pool Size=0;",
+                _                 => $"Host={cfg.Host};Port={cfg.Port};Database={cfg.Database};Username={cfg.User};Password={cfg.Password};Maximum Pool Size=4;Minimum Pool Size=0;",
             };
 
             _db = new SqlSugarScope(new ConnectionConfig
@@ -77,6 +78,30 @@ internal sealed class AltGuardDatabase : IDisposable
         {
             // Non-fatal: detection still works without the index, just slower on big tables.
             _logger.LogWarning(e, "[AltGuard] Could not ensure pa_connections IpAddress index");
+        }
+    }
+
+    /// <summary>Ensure the shared guard_bypass table exists (reuses this connection — no separate pool).</summary>
+    public void EnsureBypassTable()
+    {
+        if (_db is null) return;
+        try { _db.CodeFirst.InitTables<GuardBypassRow>(); }
+        catch (Exception e) { _logger.LogWarning(e, "[AltGuard] Could not ensure guard_bypass table"); }
+    }
+
+    /// <summary>Load all bypass SteamIDs (as strings) from guard_bypass. Empty on failure.</summary>
+    public async Task<HashSet<string>> GetBypassSteamIdsAsync()
+    {
+        if (_db is null) return [];
+        try
+        {
+            var ids = await _db.Queryable<GuardBypassRow>().Select(r => r.SteamId).ToListAsync().ConfigureAwait(false);
+            return new HashSet<string>(ids.ConvertAll(id => id.ToString()));
+        }
+        catch (Exception e)
+        {
+            _logger.LogWarning(e, "[AltGuard] Bypass list load failed");
+            return [];
         }
     }
 

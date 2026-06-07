@@ -55,25 +55,20 @@ public sealed class AltGuardPlugin : IModSharpModule
     {
         _bridge.ResolveModules();
 
-        // AltGuard's DB (PlayerAnalytics' config by default) — used for detection lookups AND the bypass table.
+        // AltGuard's DB (PlayerAnalytics' config by default) — used for detection lookups, the bypass
+        // table, and (now) the bypass list, all over ONE connection (the shared MySQL box is
+        // connection-constrained — no separate pools).
         var dbConfig = DatabaseConfig.LoadShared(_bridge.SharpPath, _config.AnalyticsDatabaseConfig, _logger);
-        if (_config.Enabled)
+        if (dbConfig is not null && _db.Connect(dbConfig))
         {
-            if (dbConfig is not null && _db.Connect(dbConfig))
-                _db.EnsureIpIndex();
+            _db.EnsureIpIndex();
+            _db.EnsureBypassTable();
         }
 
-        // Bypass list: lives in AltGuard's OWN DB (guard_bypass table) — no cross-share with AntiVpnGuard.
-        // A separate bypassDatabaseConfig file overrides; empty (default) reuses the DB above.
-        // JSON file kept as offline fallback merged on top.
+        // Bypass list reuses the _db connection above. JSON file = offline fallback merged on top.
         var fileFallback = Configuration.SharedBypass.Load(_bridge.SharpPath, _config.SharedBypassConfig, _logger);
-        _bypassStore     = new Database.GuardBypassStore(fileFallback, _logger);
-
-        var bypassDb = !string.IsNullOrWhiteSpace(_config.BypassDatabaseConfig)
-            ? DatabaseConfig.LoadShared(_bridge.SharpPath, _config.BypassDatabaseConfig, _logger)
-            : dbConfig;
-        if (bypassDb is not null && _bypassStore.Connect(bypassDb))
-            _bypassStore.Start(_config.BypassRefreshSeconds);
+        _bypassStore     = new Database.GuardBypassStore(_db, fileFallback, _logger);
+        _bypassStore.Start(_config.BypassRefreshSeconds);
         _detection.Configure(_bypassStore);
 
         _detection.Start();
