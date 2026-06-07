@@ -33,7 +33,11 @@ internal sealed class AltDetectionModule : IClientListener
     // IP -> time until which it's considered clean (skip re-querying on reconnect spam).
     private readonly ConcurrentDictionary<string, DateTime> _cleanUntil = new();
 
-    private bool _installed;
+    private bool            _installed;
+    private HashSet<string> _sharedBypass = [];
+
+    /// <summary>Supply the shared bypass list (read by both AltGuard + AntiVpnGuard). Call before Start.</summary>
+    public void Configure(HashSet<string> sharedBypass) => _sharedBypass = sharedBypass ?? [];
 
     public AltDetectionModule(InterfaceBridge bridge, AltGuardConfig config, AltGuardDatabase db,
                               ILogger<AltDetectionModule> logger)
@@ -82,7 +86,7 @@ internal sealed class AltDetectionModule : IClientListener
         var steamId  = client.SteamId;
         var steamStr = ((ulong) steamId).ToString();
 
-        if (_config.Whitelist.Contains(steamStr))
+        if (_config.Whitelist.Contains(steamStr) || _sharedBypass.Contains(steamStr))
             return;
 
         if (_config.AdminBypass && _bridge.AdminManager?.GetAdmin(steamId) is not null)

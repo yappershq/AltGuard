@@ -95,6 +95,12 @@ public sealed class AltGuardConfig
     /// <summary>SteamID64s exempt from detection entirely (trusted shared-IP households, etc).</summary>
     [JsonPropertyName("whitelist")] public List<string> Whitelist { get; set; } = [];
 
+    /// <summary>
+    /// Optional shared bypass file (in configs/) read by BOTH AltGuard and AntiVpnGuard:
+    /// { "steamIds": ["7656..."] }. SteamIDs here are exempt from both plugins. Empty = disabled.
+    /// </summary>
+    [JsonPropertyName("sharedBypassConfig")] public string SharedBypassConfig { get; set; } = "bypass_steamids.json";
+
     /// <summary>Skip re-querying an IP that was already seen clean within this many seconds.</summary>
     [JsonPropertyName("ipCacheSeconds")] public int IpCacheSeconds { get; set; } = 300;
 

@@ -62,6 +62,9 @@ public sealed class AltGuardPlugin : IModSharpModule
                 _db.EnsureIpIndex();
         }
 
+        // Shared bypass list (read by both AltGuard + AntiVpnGuard).
+        _detection.Configure(Configuration.SharedBypass.Load(_bridge.SharpPath, _config.SharedBypassConfig, _logger));
+
         _detection.Start();
 
         _logger.LogInformation("[AltGuard] Loaded (AdminCommands={Admin}, AdminManager={Mgr}, DB={Db})",

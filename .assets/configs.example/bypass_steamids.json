@@ -1,0 +1,8 @@
+{
+  // Shared SteamID bypass list — read by BOTH AntiVpnGuard and AltGuard.
+  // SteamID64s listed here are exempt from VPN/proxy detection AND alt/ban-evasion detection.
+  // One edit here exempts a player from both plugins. Place in configs/ on the server.
+  "steamIds": [
+    // "76561198000000000"
+  ]
+}
