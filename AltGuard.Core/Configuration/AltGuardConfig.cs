@@ -102,10 +102,11 @@ public sealed class AltGuardConfig
     [JsonPropertyName("sharedBypassConfig")] public string SharedBypassConfig { get; set; } = "bypass_steamids.json";
 
     /// <summary>
-    /// Config file (in configs/) holding the shared bypass DB creds as a top-level "database" block.
-    /// Hosts the fleet-wide, website-managed guard_bypass table read by both plugins. Empty = file-only.
+    /// Optional separate config file (in configs/) with a "database" block for the bypass table.
+    /// EMPTY (default) = use AltGuard's OWN DB (guard_bypass table created in the DB AltGuard already
+    /// connects to). The website manages AltGuard's bypass list directly there. No cross-plugin sharing.
     /// </summary>
-    [JsonPropertyName("bypassDatabaseConfig")] public string BypassDatabaseConfig { get; set; } = "guardbypass.database.json";
+    [JsonPropertyName("bypassDatabaseConfig")] public string BypassDatabaseConfig { get; set; } = "";
 
     /// <summary>How often (seconds) to refresh the bypass list from the DB. Default 300 (5 min).</summary>
     [JsonPropertyName("bypassRefreshSeconds")] public int BypassRefreshSeconds { get; set; } = 300;
